@@ -1,0 +1,359 @@
+const mongoose = require('mongoose');
+require('dotenv').config();
+
+// Import Company model
+const { Company } = require('./index');
+
+const companyData = [
+  {
+    companyId: 'CMP0001',
+    companyName: 'Oconnor, Marshall and Lyons',
+    website: 'http://www.blake.org/',
+    industry: 'Healthcare',
+    city: 'Davidsonmouth',
+    state: 'IL',
+    employeeRange: '500+',
+    estimatedRevenue: '<$1M',
+    outsourcingScore: 23,
+    companyType: 'Startup',
+    keyContact: 'Gina Villegas',
+    contactRole: 'VP Engineering',
+    email: 'davidboone@scott.org',
+    phone: '978.096.6134',
+    linkedInProfile: 'https://www.linkedin.com/in/zachary36',
+    keywordsFound: 'AI, Cloud',
+    triggerEvents: 'Hiring Surge',
+    lastWebsiteUpdate: new Date('2026-01-20'),
+    notes: 'Writer expect office shoulder knowledge already top.',
+    priority: 'Low',
+    assignedTo: 'Danielle',
+    dateAdded: new Date('2026-02-01')
+  },
+  {
+    companyId: 'CMP0002',
+    companyName: 'Stevenson Ltd',
+    website: 'https://roberts.net/',
+    industry: 'Finance',
+    city: 'South Elizabeth',
+    state: 'FL',
+    employeeRange: '51-200',
+    estimatedRevenue: '$50M-$100M',
+    outsourcingScore: 79,
+    companyType: 'Startup',
+    keyContact: 'Mckenzie Smith',
+    contactRole: 'IT Manager',
+    email: 'emily87@rosales-rogers.com',
+    phone: '527.164.7662',
+    linkedInProfile: 'https://www.linkedin.com/in/montgomerychristopher',
+    keywordsFound: 'Data, Security',
+    triggerEvents: 'Funding Round',
+    lastWebsiteUpdate: new Date('2025-09-05'),
+    notes: 'Hear reach book policy gun writer member someone.',
+    priority: 'Medium',
+    assignedTo: 'Brandon',
+    dateAdded: new Date('2026-02-01')
+  },
+  {
+    companyId: 'CMP0003',
+    companyName: 'Gonzalez and Sons',
+    website: 'https://wilson.com/',
+    industry: 'Education',
+    city: 'Ramseyborough',
+    state: 'CT',
+    employeeRange: '51-200',
+    estimatedRevenue: '$10M-$50M',
+    outsourcingScore: 42,
+    companyType: 'Startup',
+    keyContact: 'Nicholas Olson',
+    contactRole: 'CEO',
+    email: 'brandywade@thomas.biz',
+    phone: '7529834240',
+    linkedInProfile: 'https://www.linkedin.com/in/rford',
+    keywordsFound: 'Automation, DevOps',
+    triggerEvents: 'Product Launch',
+    lastWebsiteUpdate: new Date('2025-07-11'),
+    notes: 'Act information action spring claim ahead director central majority.',
+    priority: 'Low',
+    assignedTo: 'Mercedes',
+    dateAdded: new Date('2026-02-01')
+  },
+  {
+    companyId: 'CMP0004',
+    companyName: 'Kramer Inc',
+    website: 'http://www.thomas.com/',
+    industry: 'Retail',
+    city: 'Harrisland',
+    state: 'DC',
+    employeeRange: '11-50',
+    estimatedRevenue: '<$1M',
+    outsourcingScore: 91,
+    companyType: 'Enterprise',
+    keyContact: 'Philip Kirk',
+    contactRole: 'IT Manager',
+    email: 'wrightdavid@white-richards.com',
+    phone: '426.975.5047',
+    linkedInProfile: 'https://www.linkedin.com/in/cory83',
+    keywordsFound: 'AI, Cloud',
+    triggerEvents: 'Funding Round',
+    lastWebsiteUpdate: new Date('2025-05-29'),
+    notes: 'Rather forward let story pretty.',
+    priority: 'Low',
+    assignedTo: 'Andrea',
+    dateAdded: new Date('2026-02-01')
+  },
+  {
+    companyId: 'CMP0005',
+    companyName: 'Love-Schneider',
+    website: 'http://gallagher.org/',
+    industry: 'Technology',
+    city: 'North Dylan',
+    state: 'DE',
+    employeeRange: '11-50',
+    estimatedRevenue: '$100M+',
+    outsourcingScore: 2,
+    companyType: 'Enterprise',
+    keyContact: 'Jay Brennan',
+    contactRole: 'CEO',
+    email: 'david70@anderson.com',
+    phone: '(535)763-6692',
+    linkedInProfile: 'https://www.linkedin.com/in/jessica75',
+    keywordsFound: 'Automation, DevOps',
+    triggerEvents: 'Funding Round',
+    lastWebsiteUpdate: new Date('2026-01-14'),
+    notes: 'Upon American him during safe throughout.',
+    priority: 'Low',
+    assignedTo: 'Alicia',
+    dateAdded: new Date('2026-02-01')
+  },
+  {
+    companyId: 'CMP0006',
+    companyName: 'Martinez-Roberts',
+    website: 'http://ellis.com/',
+    industry: 'Manufacturing',
+    city: 'Port Nancy',
+    state: 'AL',
+    employeeRange: '51-200',
+    estimatedRevenue: '<$1M',
+    outsourcingScore: 2,
+    companyType: 'Enterprise',
+    keyContact: 'Brooke Freeman',
+    contactRole: 'Operations Director',
+    email: 'angeladavis@lane.com',
+    phone: '(582)658-2384x2720',
+    linkedInProfile: 'https://www.linkedin.com/in/kwarren',
+    keywordsFound: 'Outsourcing, SaaS',
+    triggerEvents: 'Expansion',
+    lastWebsiteUpdate: new Date('2025-03-18'),
+    notes: 'Upon stock sing direction yard modern morning choice end part job.',
+    priority: 'Medium',
+    assignedTo: 'Heather',
+    dateAdded: new Date('2026-02-01')
+  },
+  {
+    companyId: 'CMP0007',
+    companyName: 'Novak, Gonzalez and Lopez',
+    website: 'http://www.owens.net/',
+    industry: 'Technology',
+    city: 'Jessicachester',
+    state: 'GA',
+    employeeRange: '201-500',
+    estimatedRevenue: '$10M-$50M',
+    outsourcingScore: 72,
+    companyType: 'Enterprise',
+    keyContact: 'Brittany Washington',
+    contactRole: 'Operations Director',
+    email: 'matthew27@hays.com',
+    phone: '598-119-3442x193',
+    linkedInProfile: 'https://www.linkedin.com/in/chad79',
+    keywordsFound: 'Automation, DevOps',
+    triggerEvents: 'Product Launch',
+    lastWebsiteUpdate: new Date('2025-05-16'),
+    notes: 'Imagine short player sell type.',
+    priority: 'Low',
+    assignedTo: 'Jeremy',
+    dateAdded: new Date('2026-02-01')
+  },
+  {
+    companyId: 'CMP0008',
+    companyName: 'Haas and Sons',
+    website: 'http://jimenez.com/',
+    industry: 'Technology',
+    city: 'West Jessicachester',
+    state: 'SD',
+    employeeRange: '11-50',
+    estimatedRevenue: '<$1M',
+    outsourcingScore: 32,
+    companyType: 'Startup',
+    keyContact: 'Taylor Gonzales',
+    contactRole: 'IT Manager',
+    email: 'joseph69@gardner.info',
+    phone: '001-624-151-9531x624',
+    linkedInProfile: 'https://www.linkedin.com/in/benitezbruce',
+    keywordsFound: 'Automation, DevOps',
+    triggerEvents: 'Funding Round',
+    lastWebsiteUpdate: new Date('2025-07-04'),
+    notes: 'Animal middle might staff fire network government statement customer.',
+    priority: 'Medium',
+    assignedTo: 'Samantha',
+    dateAdded: new Date('2026-02-01')
+  },
+  {
+    companyId: 'CMP0009',
+    companyName: 'Tucker Group',
+    website: 'https://www.villa.org/',
+    industry: 'Healthcare',
+    city: 'Port Claytonstad',
+    state: 'AL',
+    employeeRange: '201-500',
+    estimatedRevenue: '<$1M',
+    outsourcingScore: 45,
+    companyType: 'SMB',
+    keyContact: 'Jacob Fitzgerald',
+    contactRole: 'CTO',
+    email: 'russelldennis@king.org',
+    phone: '001-999-277-5098x915',
+    linkedInProfile: 'https://www.linkedin.com/in/anthonymccarthy',
+    keywordsFound: 'Outsourcing, SaaS',
+    triggerEvents: 'Product Launch',
+    lastWebsiteUpdate: new Date('2025-12-30'),
+    notes: 'Something itself consider phone certain too student senior.',
+    priority: 'High',
+    assignedTo: 'Sarah',
+    dateAdded: new Date('2026-02-01')
+  },
+  {
+    companyId: 'CMP0010',
+    companyName: 'Tate-Benson',
+    website: 'https://phillips.com/',
+    industry: 'Finance',
+    city: 'Brownborough',
+    state: 'VA',
+    employeeRange: '1-10',
+    estimatedRevenue: '$1M-$10M',
+    outsourcingScore: 76,
+    companyType: 'SMB',
+    keyContact: 'Cory Harris',
+    contactRole: 'CEO',
+    email: 'santosdiane@thomas.net',
+    phone: '(453)784-6740x698',
+    linkedInProfile: 'https://www.linkedin.com/in/sarahreid',
+    keywordsFound: 'Automation, DevOps',
+    triggerEvents: 'Product Launch',
+    lastWebsiteUpdate: new Date('2025-02-21'),
+    notes: 'Congress room food industry rock represent another opportunity people realize.',
+    priority: 'Medium',
+    assignedTo: 'Brandon',
+    dateAdded: new Date('2026-02-01')
+  },
+  {
+    companyId: 'CMP0011',
+    companyName: 'Garcia-Lopez',
+    website: 'https://www.warren.com/',
+    industry: 'Finance',
+    city: 'Lake Colinview',
+    state: 'ME',
+    employeeRange: '500+',
+    estimatedRevenue: '$100M+',
+    outsourcingScore: 54,
+    companyType: 'Startup',
+    keyContact: 'Jesse Mejia',
+    contactRole: 'CEO',
+    email: 'webertammy@freeman.com',
+    phone: '961-233-1687x34154',
+    linkedInProfile: 'https://www.linkedin.com/in/myerssteven',
+    keywordsFound: 'AI, Cloud',
+    triggerEvents: 'Product Launch',
+    lastWebsiteUpdate: new Date('2025-06-08'),
+    notes: 'Build six remember mission water ago.',
+    priority: 'High',
+    assignedTo: 'Heather',
+    dateAdded: new Date('2026-02-01')
+  },
+  {
+    companyId: 'CMP0012',
+    companyName: 'Lewis-Gould',
+    website: 'https://www.stephens.net/',
+    industry: 'Education',
+    city: 'Santiagoborough',
+    state: 'MN',
+    employeeRange: '11-50',
+    estimatedRevenue: '$50M-$100M',
+    outsourcingScore: 4,
+    companyType: 'Startup',
+    keyContact: 'Amanda Allison MD',
+    contactRole: 'IT Manager',
+    email: 'michael67@williamson.net',
+    phone: '328.198.4630x2099',
+    linkedInProfile: 'https://www.linkedin.com/in/harriskristina',
+    keywordsFound: 'Data, Security',
+    triggerEvents: 'Hiring Surge',
+    lastWebsiteUpdate: new Date('2025-10-16'),
+    notes: 'Rather raise season choose test food Democrat difference I deal.',
+    priority: 'Medium',
+    assignedTo: 'Joshua',
+    dateAdded: new Date('2026-02-01')
+  },
+  {
+    companyId: 'CMP0013',
+    companyName: 'Brady LLC',
+    website: 'https://walker.com/',
+    industry: 'Manufacturing',
+    city: 'Lake Williamside',
+    state: 'ND',
+    employeeRange: '51-200',
+    estimatedRevenue: '$50M-$100M',
+    outsourcingScore: 100,
+    companyType: 'Startup',
+    keyContact: 'Ricky Jackson',
+    contactRole: 'IT Manager',
+    email: 'liulauren@hoover-romero.com',
+    phone: '(580)788-1144',
+    linkedInProfile: 'https://www.linkedin.com/in/sullivanjames',
+    keywordsFound: 'AI, Cloud',
+    triggerEvents: 'Funding Round',
+    lastWebsiteUpdate: new Date('2025-09-14'),
+    notes: 'Knowledge need truth everything hard fill box character section pattern.',
+    priority: 'Medium',
+    assignedTo: 'Thomas',
+    dateAdded: new Date('2026-02-01')
+  }
+];
+
+async function seedCompanyData() {
+  try {
+    // Connect to MongoDB
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('Connected to MongoDB');
+
+    // Clear existing company data
+    await Company.deleteMany({});
+    console.log('Cleared existing companies');
+
+    // Insert company data
+    const insertedCompanies = await Company.insertMany(companyData);
+    console.log(`Successfully inserted ${insertedCompanies.length} companies`);
+
+    // Display statistics
+    const total = await Company.countDocuments();
+    const today = new Date();
+    const todayCount = await Company.countDocuments({ 
+      dateAdded: { 
+        $gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()) 
+      } 
+    });
+
+    console.log(`\nCompany Database Statistics:`);
+    console.log(`Total companies: ${total}`);
+    console.log(`Added today: ${todayCount}`);
+    console.log(`Industries: ${[...new Set(companyData.map(c => c.industry))].join(', ')}`);
+    console.log(`Priorities: ${[...new Set(companyData.map(c => c.priority))].join(', ')}`);
+    console.log(`Company Types: ${[...new Set(companyData.map(c => c.companyType))].join(', ')}`);
+
+  } catch (error) {
+    console.error('Error seeding company database:', error);
+  } finally {
+    mongoose.connection.close();
+  }
+}
+
+seedCompanyData();

@@ -1,0 +1,376 @@
+{
+  "leadFields": {
+    "basic": {
+      "leadId": {
+        "displayName": "Lead ID",
+        "type": "text",
+        "required": true,
+        "editable": false,
+        "visible": true
+      },
+      "companyName": {
+        "displayName": "Company Name",
+        "type": "text",
+        "required": true,
+        "editable": true,
+        "visible": true
+      },
+      "website": {
+        "displayName": "Website",
+        "type": "url",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "companyType": {
+        "displayName": "Company Type",
+        "type": "select",
+        "required": false,
+        "editable": true,
+        "visible": true,
+        "options": ["Public", "Private", "Non-profit", "Government"]
+      },
+      "foundedYear": {
+        "displayName": "Founded Year",
+        "type": "number",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "headquarters": {
+        "displayName": "Headquarters",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "revenueRangeCr": {
+        "displayName": "Revenue Range (₹ Cr)",
+        "type": "select",
+        "required": false,
+        "editable": true,
+        "visible": true,
+        "options": ["0-10", "10-50", "50-100", "100-500", "500-1000", "1000+"]
+      }
+    },
+    "status": {
+      "leadStatus": {
+        "displayName": "Lead Status",
+        "type": "select",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "options": ["New", "Contacted", "Qualified", "Converted", "Lost", "Rejected"]
+      },
+      "status": {
+        "displayName": "Status",
+        "type": "select",
+        "required": false,
+        "editable": true,
+        "visible": true,
+        "options": ["New", "Contacted", "Qualified", "Converted", "Lost"]
+      }
+    },
+    "priority": {
+      "priorityLevel": {
+        "displayName": "Priority Level",
+        "type": "select",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "options": ["High", "Medium", "Low"]
+      },
+      "priority": {
+        "displayName": "Priority",
+        "type": "select",
+        "required": false,
+        "editable": true,
+        "visible": true,
+        "options": ["High", "Medium", "Low"]
+      }
+    },
+    "custom": {
+      "employeeCount": {
+        "displayName": "Employee Count",
+        "type": "number",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "manufacturingPlants": {
+        "displayName": "Manufacturing Plants",
+        "type": "number",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "plantLocations": {
+        "displayName": "Plant Locations",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "dosageForms": {
+        "displayName": "Dosage Forms",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "capacityUtilization": {
+        "displayName": "Capacity Utilization",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "gmpCertifications": {
+        "displayName": "GMP Certifications",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "exportPercentage": {
+        "displayName": "Export Percentage",
+        "type": "number",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "therapeuticAreas": {
+        "displayName": "Therapeutic Areas",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "keyProducts": {
+        "displayName": "Key Products",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "businessModel": {
+        "displayName": "Business Model",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "targetMarkets": {
+        "displayName": "Target Markets",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "recentFdaApprovals": {
+        "displayName": "Recent FDA Approvals",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "whoPrequalified": {
+        "displayName": "WHO Prequalified",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "discoverySource": {
+        "displayName": "Discovery Source",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "triggerEvent": {
+        "displayName": "Trigger Event",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "discoveryDate": {
+        "displayName": "Discovery Date",
+        "type": "date",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "discoveryUrl": {
+        "displayName": "Discovery URL",
+        "type": "url",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "keyDecisionMaker": {
+        "displayName": "Key Decision Maker",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "designation": {
+        "displayName": "Designation",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "contactEmail": {
+        "displayName": "Contact Email",
+        "type": "email",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "firstContactDate": {
+        "displayName": "First Contact Date",
+        "type": "date",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "contactMethod": {
+        "displayName": "Contact Method",
+        "type": "select",
+        "required": false,
+        "editable": true,
+        "visible": true,
+        "options": ["Email", "Phone", "LinkedIn", "In-person", "Other"]
+      },
+      "leadScore": {
+        "displayName": "Lead Score",
+        "type": "number",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "companyFitScore": {
+        "displayName": "Company Fit Score",
+        "type": "number",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "needScore": {
+        "displayName": "Need Score",
+        "type": "number",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "growthScore": {
+        "displayName": "Growth Score",
+        "type": "number",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "contactScore": {
+        "displayName": "Contact Score",
+        "type": "number",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "opportunitySizeLakhs": {
+        "displayName": "Opportunity Size (₹ Lakhs)",
+        "type": "number",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "probability": {
+        "displayName": "Probability (%)",
+        "type": "number",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "contractValueLakhs": {
+        "displayName": "Contract Value (₹ Lakhs)",
+        "type": "number",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "internalNotes": {
+        "displayName": "Internal Notes",
+        "type": "textarea",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "companyNotes": {
+        "displayName": "Company Notes",
+        "type": "textarea",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "attachments": {
+        "displayName": "Attachments",
+        "type": "file",
+        "required": false,
+        "editable": true,
+        "visible": true
+      },
+      "lastUpdated": {
+        "displayName": "Last Updated",
+        "type": "datetime",
+        "required": false,
+        "editable": false,
+        "visible": true
+      }
+    }
+  },
+  "displaySettings": {
+    "defaultFields": [
+      "leadId",
+      "companyName",
+      "website",
+      "companyType",
+      "foundedYear",
+      "headquarters",
+      "revenueRangeCr"
+    ],
+    "visibleFields": [
+      "leadId",
+      "companyName",
+      "website",
+      "companyType",
+      "foundedYear",
+      "headquarters",
+      "revenueRangeCr",
+      "leadStatus",
+      "priorityLevel"
+    ],
+    "sortableFields": [
+      "leadId",
+      "companyName",
+      "website",
+      "foundedYear",
+      "revenueRangeCr",
+      "leadStatus",
+      "priorityLevel",
+      "dateAdded",
+      "dateUpdated"
+    ]
+  },
+  "filterSettings": {
+    "enabledFilters": ["status", "priority"],
+    "defaultFilters": {
+      "status": "",
+      "priority": ""
+    }
+  },
+  "version": "1.0.0",
+  "lastUpdated": "2026-02-05T00:00:00.000Z"
+}

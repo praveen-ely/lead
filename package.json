@@ -1,0 +1,19 @@
+{
+  "name": "company-data-management",
+  "version": "1.0.0",
+  "description": "Company data management system with CRUD operations",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "install-deps": "npm install && cd server && npm install && cd ../client && npm install"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

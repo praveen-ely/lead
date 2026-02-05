@@ -1,0 +1,15 @@
+{
+  "assignedTo": "user123",
+  "data": {
+    "companyName": "New Company Ltd",
+    "contactPerson": "Jane Smith",
+    "email": "jane@newcompany.com",
+    "phone": "+91-9876543211",
+    "city": "Delhi",
+    "state": "Delhi",
+    "industry": "Manufacturing",
+    "employeeCount": "100-500",
+    "headquarters": "Delhi Delhi",
+    "website": "https://newcompany.com"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "leadId": "A100",
+  "assignedTo": "user123",
+  "data": {
+    "companyName": "Tech Solutions Pvt Ltd",
+    "contactPerson": "John Doe",
+    "email": "john@techsolutions.com",
+    "phone": "+91-9876543210",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "industry": "Technology",
+    "employeeCount": "50-100",
+    "headquarters": "Mumbai Maharashtra",
+    "plantLocations": "Pune Maharashtra",
+    "website": "https://techsolutions.com",
+    "annualRevenue": "10-50 Cr"
+  }
+}

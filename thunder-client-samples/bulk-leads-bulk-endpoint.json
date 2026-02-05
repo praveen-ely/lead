@@ -1,0 +1,39 @@
+{
+  "assignedTo": "user123",
+  "leads": [
+    {
+      "leadId": "A201",
+      "companyName": "Bulk Company One",
+      "contactPerson": "Bulk Person One",
+      "email": "bulk1@company.com",
+      "phone": "+91-9876543221",
+      "city": "Pune",
+      "state": "Maharashtra",
+      "industry": "Software",
+      "employeeCount": "200-500",
+      "headquarters": "Pune Maharashtra"
+    },
+    {
+      "leadId": "A202",
+      "companyName": "Bulk Company Two",
+      "contactPerson": "Bulk Person Two",
+      "email": "bulk2@company.com",
+      "phone": "+91-9876543222",
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "industry": "Finance",
+      "employeeCount": "500-1000",
+      "headquarters": "Kolkata West Bengal"
+    },
+    {
+      "companyName": "Bulk Company Three",
+      "contactPerson": "Bulk Person Three",
+      "email": "bulk3@company.com",
+      "phone": "+91-9876543223",
+      "city": "Ahmedabad",
+      "state": "Gujarat",
+      "industry": "Retail",
+      "employeeCount": "50-100"
+    }
+  ]
+}

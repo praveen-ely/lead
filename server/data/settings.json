@@ -1,0 +1,104 @@
+{
+  "apis": [
+    {
+      "id": "1",
+      "name": "Dummy Lead API",
+      "url": "https://jsonplaceholder.typicode.com/users",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "params": {
+        "limit": "10"
+      },
+      "fieldMapping": {
+        "name": "name",
+        "email": "email",
+        "phone": "phone",
+        "company": "company.name",
+        "website": "website",
+        "city": "address.city"
+      },
+      "schedule": "0 12 * * *",
+      "enabled": true,
+      "lastRun": null,
+      "status": "success"
+    }
+  ],
+  "fields": [
+    {
+      "fieldName": "name",
+      "displayName": "Full Name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "fieldName": "email",
+      "displayName": "Email Address",
+      "type": "email",
+      "required": true
+    },
+    {
+      "fieldName": "phone",
+      "displayName": "Phone Number",
+      "type": "phone",
+      "required": false
+    },
+    {
+      "fieldName": "company",
+      "displayName": "Company",
+      "type": "text",
+      "required": false
+    },
+    {
+      "fieldName": "city",
+      "displayName": "City",
+      "type": "text",
+      "required": false
+    },
+    {
+      "fieldName": "type",
+      "displayName": "Lead Type",
+      "type": "select",
+      "required": false,
+      "options": [
+        "Hot",
+        "Warm",
+        "Cold"
+      ]
+    }
+  ],
+  "notifications": [
+    {
+      "id": "1",
+      "type": "browser",
+      "enabled": true,
+      "settings": {
+        "browser": true
+      },
+      "triggers": [
+        "api_success",
+        "api_error",
+        "new_leads"
+      ]
+    },
+    {
+      "id": "2",
+      "type": "email",
+      "enabled": false,
+      "settings": {
+        "email": "admin@example.com"
+      },
+      "triggers": [
+        "api_error",
+        "new_leads"
+      ]
+    }
+  ],
+  "schedule": {
+    "enabled": true,
+    "timezone": "Asia/Kolkata",
+    "retryAttempts": 3,
+    "retryDelay": 5
+  }
+}

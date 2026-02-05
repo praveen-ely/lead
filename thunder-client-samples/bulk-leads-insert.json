@@ -1,0 +1,39 @@
+{
+  "assignedTo": "user123",
+  "data": [
+    {
+      "leadId": "A101",
+      "companyName": "Company One",
+      "contactPerson": "Person One",
+      "email": "one@company.com",
+      "phone": "+91-9876543212",
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "industry": "IT Services",
+      "employeeCount": "50-100",
+      "headquarters": "Bangalore Karnataka"
+    },
+    {
+      "leadId": "A102",
+      "companyName": "Company Two",
+      "contactPerson": "Person Two",
+      "email": "two@company.com",
+      "phone": "+91-9876543213",
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "industry": "Manufacturing",
+      "employeeCount": "100-500",
+      "headquarters": "Chennai Tamil Nadu"
+    },
+    {
+      "companyName": "Company Three",
+      "contactPerson": "Person Three",
+      "email": "three@company.com",
+      "phone": "+91-9876543214",
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "industry": "Healthcare",
+      "employeeCount": "10-50"
+    }
+  ]
+}

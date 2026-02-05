@@ -1,0 +1,56 @@
+{
+  "assignedTo": "6982f86ec540cf5f1cc1573d",
+  "data": [{
+    "companyName": "Pharma Company 2",
+    "website": "https://company2.com",
+    "companyType": "MNC",
+    "foundedYear": "2017",
+    "headquarters": "Baroda Gujarat",
+    "revenueRangeCr": "1000-5000",
+    "employeeCount": "101-500",
+    "manufacturingPlants": "5",
+    "plantLocations": "Multiple Locations",
+    "segment": "Injectables",
+    "exportPercent": "81%",
+    "certifications": "WHO-GMP EU-GMP",
+    "productsCount": "69",
+    "therapeuticArea": "Anti-infectives",
+    "keyProduct": "Key Product A",
+    "businessModel": "Formulations",
+    "exportMarkets": "US",
+    "regulatoryWarnings": "3",
+    "usfdaApproval": "Yes",
+    "leadSource": "News",
+    "triggerEvent": "Expansion",
+    "triggerDate": "2025-01-03",
+    "sourceUrl": "https://source.com",
+    "contactName": "Decision Maker 2",
+    "contactRole": "Head Operations",
+    "email": "contact2@company2.com",
+    "lastContactedAt": "2025-01-05",
+    "contactChannel": "Email",
+    "score": "70",
+    "leadStatus": "Proposal",
+    "priority": "MEDIUM",
+    "opportunitySizeLakhs": "973",
+    "probabilityPercent": "75%",
+    "notes": "Auto-generated lead",
+    "dataSource": "Fake pharma data",
+    "dateAdded": "NOW()"
+  }
+,
+
+
+{
+  "assignedTo": "6982f86ec540cf5f1cc1573d",
+  "data": {
+    "companyName": "Pharma Company 1",
+    "leadStatus": "Converted",
+    "priority": "HIGH",
+    "contactRole": "VP Operations",
+    "exportMarkets": "EU, Africa",
+    "notes": "Converted after demo call",
+    "probabilityPercent": "90%",
+    "score": "88"
+  }
+}
