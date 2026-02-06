@@ -152,12 +152,17 @@ exports.getAllLeads = async (req, res) => {
       status = '',
       priority = '',
       sortBy = 'dateAdded',
-      sortOrder = 'desc'
+      sortOrder = 'desc',
+      applyPreferences = 'false',
+      includeAll = 'false'
     } = req.query;
 
-    // Get logged-in user
-    const user = await AuthUser.findById(req.user.userId);
-    if (!user) {
+    const usePreferences = String(applyPreferences).toLowerCase() === 'true';
+    const showAllLeads = String(includeAll).toLowerCase() === 'true';
+
+    // Get logged-in user (optional when includeAll=true and preferences disabled)
+    const user = await AuthUser.findById(req.user?._id || req.userId);
+    if (!user && (usePreferences || !showAllLeads)) {
       return res.status(404).json({
         success: false,
         message: 'User not found'
@@ -167,8 +172,8 @@ exports.getAllLeads = async (req, res) => {
     const query = {};
     const assignedToConditions = buildAssignedToConditions(user);
 
-    // Filter based on user preferences
-    if (user.preferences) {
+    // Filter based on user preferences (optional)
+    if (usePreferences && user?.preferences) {
       const orConditions = [];
 
       // Geographic filtering - matches customFields.headquarters, customFields.city, customFields.plantLocations, or data.headquarters
@@ -293,7 +298,7 @@ exports.getAllLeads = async (req, res) => {
     // If no preferences exist or all preference arrays are empty, query remains {} which matches ALL leads
     // If no preferences exist or all preference arrays are empty, query = {} matches all leads
 
-    if (assignedToConditions) {
+    if (!showAllLeads && assignedToConditions) {
       if (query.$or) {
         query.$and = [{ $or: query.$or }, assignedToConditions];
         delete query.$or;
@@ -362,9 +367,9 @@ exports.getAllLeads = async (req, res) => {
         pages: Math.ceil(total / limit)
       },
       userPreferences: {
-        hasPreferences: !!user.preferences,
-        preferences: user.preferences,
-        filteredByPreferences: query.$and && query.$and.length > 0
+        hasPreferences: !!user?.preferences,
+        preferences: user?.preferences || null,
+        filteredByPreferences: usePreferences && !!(query.$and && query.$and.length > 0)
       }
     });
   } catch (error) {
@@ -1103,7 +1108,7 @@ exports.updateLead = async (req, res) => {
 exports.updateLeadByLeadId = async (req, res) => {
   try {
     const leadId = req.params.leadId || req.body.leadId;
-    const { data = {}, assignedTo = null } = req.body || {};
+    let { data = {}, assignedTo = null } = req.body || {};
 
     if (!leadId) {
       return res.status(400).json({
@@ -1120,7 +1125,10 @@ exports.updateLeadByLeadId = async (req, res) => {
       });
     }
 
-    // Merge customFields
+    // Merge customFields (accept object or single-item array)
+    if (Array.isArray(data)) {
+      data = data[0] || {};
+    }
     if (data && typeof data === 'object') {
       lead.customFields = mergeCustomFields(lead.customFields, data);
     }
@@ -1147,18 +1155,45 @@ exports.updateLeadByLeadId = async (req, res) => {
 // Update lead by leadId from body (for bulk updates)
 exports.updateLeadByLeadIdFromBody = async (req, res) => {
   try {
-    const { leads = [], assignedTo = null } = req.body || {};
+    const { leads = [], assignedTo = null, leadId, data } = req.body || {};
+    let leadsToUpdate = Array.isArray(leads) && leads.length
+      ? leads
+      : leadId
+        ? [{ leadId, data }]
+        : [];
 
-    if (!Array.isArray(leads) || leads.length === 0) {
+    if (leadsToUpdate.length === 0 && Array.isArray(data) && data.length) {
+      const derived = data
+        .map((item) => ({
+          leadId: item?.leadId || item?.leadID || item?.id || item?.Id || '',
+          data: item
+        }))
+        .filter((item) => item.leadId);
+      if (derived.length) {
+        leadsToUpdate = derived;
+      }
+    }
+
+    // Deduplicate by leadId (keep last entry)
+    if (leadsToUpdate.length > 1) {
+      const dedupedMap = new Map();
+      leadsToUpdate.forEach((item) => {
+        if (!item?.leadId) return;
+        dedupedMap.set(String(item.leadId), item);
+      });
+      leadsToUpdate = Array.from(dedupedMap.values());
+    }
+
+    if (!Array.isArray(leadsToUpdate) || leadsToUpdate.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'leads array is required'
+        message: 'leads array or leadId is required'
       });
     }
 
     const updatedLeads = [];
-    for (const leadData of leads) {
-      const { leadId, data = {} } = leadData;
+    for (const leadData of leadsToUpdate) {
+      let { leadId, data = {} } = leadData;
       
       if (!leadId) {
         continue;
@@ -1169,6 +1204,9 @@ exports.updateLeadByLeadIdFromBody = async (req, res) => {
         continue;
       }
 
+      if (Array.isArray(data)) {
+        data = data[0] || {};
+      }
       if (data && typeof data === 'object') {
         lead.customFields = mergeCustomFields(lead.customFields, data);
       }

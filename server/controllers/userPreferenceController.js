@@ -66,10 +66,14 @@ exports.getUserPreferences = async (req, res) => {
     const userPreference = await UserPreference.findOne({ userId });
 
     if (!userPreference) {
-      return res.status(404).json({
-        success: false,
-        message: 'User preferences not found'
+      const defaultPreferences = applyPreferenceDefaults({}, {});
+      userPreference = new UserPreference({
+        userId,
+        preferences: defaultPreferences,
+        createdAt: new Date(),
+        updatedAt: new Date()
       });
+      await userPreference.save();
     }
 
     res.json({

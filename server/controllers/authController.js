@@ -115,14 +115,7 @@ exports.login = async (req, res) => {
 // Get current user profile
 exports.getProfile = async (req, res) => {
   try {
-    const user = await AuthUser.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
+    const user = req.user;
     res.json({
       success: true,
       data: {
@@ -143,15 +136,7 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const { firstName, lastName, preferences } = req.body;
-    const userId = req.user.userId;
-
-    const user = await AuthUser.findById(userId);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
+    const user = req.user;
 
     // Update fields
     if (firstName) user.firstName = firstName;

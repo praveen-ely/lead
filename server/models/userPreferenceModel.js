@@ -312,7 +312,6 @@ const userPreferenceSchema = new mongoose.Schema({
 });
 
 // Indexes for better performance
-userPreferenceSchema.index({ userId: 1 });
 userPreferenceSchema.index({ 'stats.lastSync': 1 });
 userPreferenceSchema.index({ createdAt: 1 });
 

@@ -50,8 +50,6 @@ leadSchema.virtual('daysSinceLastContact').get(function() {
 });
 
 // Indexes for better query performance
-leadSchema.index({ leadId: 1 });
-leadSchema.index({ assignedTo: 1 });
 leadSchema.index({ dateAdded: -1 });
 leadSchema.index({ 'customFields.email': 1 });
 leadSchema.index({ 'customFields.companyName': 1 });
