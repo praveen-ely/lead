@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { 
   Users, 
   MapPin, 
@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import UserNavbar from '../components/UserNavbar';
 import { useNavigate } from 'react-router-dom';
+import { Country, State, City } from 'country-state-city';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5002/api';
 
@@ -93,6 +94,32 @@ const UserPreferencesPage: React.FC = () => {
   const fetchingOptionsRef = useRef(false);
   const mountedRef = useRef(false);
   const lastRateLimitRef = useRef<number>(0);
+  const normalizeOption = (value: string): string => value.replace(/,+\s*$/, '').trim();
+  const sanitizeOptions = (options: string[]) =>
+    Array.from(
+      new Set(
+        options
+          .filter((option) => typeof option === 'string')
+          .map((option) => normalizeOption(option))
+          .filter((option) => option && option.toLowerCase() !== 'undefined' && option.toLowerCase() !== 'null')
+          .filter((option) => !/^\d+$/.test(option))
+      )
+    ).sort();
+  const libraryCountries = useMemo(() => Country.getAllCountries(), []);
+  const countryCodeByName = useMemo(() => {
+    const map = new Map<string, string>();
+    libraryCountries.forEach((country) => {
+      if (country?.name && country?.isoCode) {
+        map.set(country.name, country.isoCode);
+      }
+    });
+    return map;
+  }, [libraryCountries]);
+  const countryOptions = useMemo(() => {
+    const base = Array.isArray(availableOptions?.countries) ? availableOptions.countries : [];
+    const library = libraryCountries.map((country) => country.name).filter(Boolean);
+    return sanitizeOptions([...library, ...base]);
+  }, [availableOptions?.countries, libraryCountries]);
 
   const currentUser = (() => {
     try {
@@ -383,6 +410,12 @@ const UserPreferencesPage: React.FC = () => {
     }
 
     try {
+      const geoValidationError = validateGeoSelection(preferencesData);
+      if (geoValidationError) {
+        showToast('warning', geoValidationError);
+        return;
+      }
+
       setSaving(true);
       
       const token = localStorage.getItem('token');
@@ -598,41 +631,23 @@ const UserPreferencesPage: React.FC = () => {
 
   // Filter states based on selected countries
   const getFilteredStates = (): string[] => {
-    if (!availableOptions?.states) {
-      // If no options available, return Indian states if India is selected
-      if (prefs.geographic?.countries?.includes('India')) {
-        return allIndianStatesList;
-      }
+    const selectedCountries = prefs.geographic?.countries || [];
+    const statesFromLibrary = selectedCountries.flatMap((countryName) => {
+      const code = countryCodeByName.get(countryName);
+      if (!code) return [];
+      return State.getStatesOfCountry(code).map((state) => state.name);
+    });
+
+    if (selectedCountries.length === 0) {
       return [];
     }
-    
-    const states: string[] = Array.isArray(availableOptions.states) ? availableOptions.states : [];
-    
-    if (!prefs.geographic?.countries || prefs.geographic.countries.length === 0) {
-      return states;
+
+    if (selectedCountries.includes('India')) {
+      const merged = [...statesFromLibrary, ...allIndianStatesList];
+      return sanitizeOptions(merged);
     }
-    
-    // If India is selected, show all Indian states from availableOptions + static list
-    if (prefs.geographic.countries.includes('India')) {
-      // Get Indian states from availableOptions
-      const indianStatesFromOptions = states.filter((state: string) => {
-        const country = stateToCountryMap[state];
-        return country === 'India' || allIndianStatesList.includes(state);
-      });
-      
-      // Add any Indian states from static list that might not be in availableOptions
-      const missingStates = allIndianStatesList.filter(state => !states.includes(state));
-      
-      // Combine and remove duplicates
-      const allIndianStates = [...indianStatesFromOptions, ...missingStates];
-      return Array.from(new Set(allIndianStates)).sort();
-    }
-    
-    // For other countries, filter by mapping
-    return states.filter((state: string) => {
-      const country = stateToCountryMap[state];
-      return country && prefs.geographic?.countries?.includes(country);
-    });
+
+    return sanitizeOptions(statesFromLibrary);
   };
 
   // All Indian cities list (from static model)
@@ -656,47 +671,117 @@ const UserPreferencesPage: React.FC = () => {
 
   // Filter cities based on selected states
   const getFilteredCities = (): string[] => {
-    const cities: string[] = availableOptions?.cities && Array.isArray(availableOptions.cities) 
-      ? availableOptions.cities 
+    const citiesFromOptions: string[] = Array.isArray(availableOptions?.cities)
+      ? availableOptions.cities
       : [];
-    
-    // If no states selected, show all cities from availableOptions + static list
-    if (!prefs.geographic?.states || prefs.geographic.states.length === 0) {
-      // If India is selected, include all Indian cities from static list
-      if (prefs.geographic?.countries?.includes('India')) {
-        const allCities = [...cities, ...allIndianCitiesList];
-        return Array.from(new Set(allCities)).sort();
+    const selectedCountries = prefs.geographic?.countries || [];
+    const selectedStates = prefs.geographic?.states || [];
+
+    if (selectedStates.length === 0) {
+      if (selectedCountries.includes('India')) {
+        const allCities = [...citiesFromOptions, ...allIndianCitiesList];
+        return sanitizeOptions(allCities);
       }
-      // Otherwise just show cities from availableOptions
-      return cities;
+      return sanitizeOptions(citiesFromOptions);
     }
-    
-    // Filter cities from availableOptions based on selected states
-    const filteredCities = cities.filter((city: string) => {
-      const state = cityToStateMap[city];
-      if (!state) {
-        // If city not in mapping, include it if India is selected or no country selected
-        // This ensures database cities without mapping still show up
-        if (!prefs.geographic?.countries || prefs.geographic.countries.length === 0 || 
-            prefs.geographic.countries.includes('India')) {
-          return true;
-        }
-        return false;
-      }
-      // Include city if its state is selected
-      return prefs.geographic?.states?.includes(state);
+
+    const stateRecords = selectedCountries.flatMap((countryName) => {
+      const code = countryCodeByName.get(countryName);
+      if (!code) return [];
+      return State.getStatesOfCountry(code);
     });
-    
-    // Always add cities from static list that belong to selected states
+    const stateKeyMap = new Map(
+      stateRecords.map((state) => [state.name, { countryCode: state.countryCode, isoCode: state.isoCode }])
+    );
+    const citiesFromLibrary = selectedStates.flatMap((stateName) => {
+      const match = stateKeyMap.get(stateName);
+      if (!match) return [];
+      return City.getCitiesOfState(match.countryCode, match.isoCode).map((city) => city.name);
+    });
+
+    const filteredCities = citiesFromOptions.filter((city: string) => {
+      const state = cityToStateMap[city];
+      if (!state) return false;
+      return selectedStates.includes(state);
+    });
+
     const citiesFromStaticList = allIndianCitiesList.filter((city: string) => {
       const state = cityToStateMap[city];
       if (!state) return false;
-      return prefs.geographic?.states?.includes(state);
+      return selectedStates.includes(state);
     });
-    
-    // Combine and remove duplicates - prioritize static list cities
-    const allCities = [...citiesFromStaticList, ...filteredCities];
-    return Array.from(new Set(allCities)).sort();
+
+    const allCities = [...citiesFromLibrary, ...citiesFromStaticList, ...filteredCities];
+    return sanitizeOptions(allCities);
+  };
+
+  const validateGeoSelection = (prefsToValidate: UserPreference): string | null => {
+    const selectedCountries = (prefsToValidate.preferences?.geographic?.countries || []).map(normalizeOption);
+    const selectedStates = (prefsToValidate.preferences?.geographic?.states || []).map(normalizeOption);
+    const selectedCities = (prefsToValidate.preferences?.geographic?.cities || []).map(normalizeOption);
+
+    if (selectedCountries.length === 0) return null;
+
+    const stateRecords = selectedCountries.flatMap((countryName) => {
+      const code = countryCodeByName.get(countryName);
+      if (!code) return [];
+      return State.getStatesOfCountry(code);
+    });
+    const stateToCountry = new Map(
+      stateRecords.map((state) => [state.name, state.countryCode])
+    );
+    const allowedCountryCodes = new Set(
+      selectedCountries
+        .map((countryName) => countryCodeByName.get(countryName))
+        .filter((code): code is string => Boolean(code))
+    );
+
+    const invalidStates = selectedStates.filter((state) => {
+      const stateCountryCode = stateToCountry.get(state);
+      const mappedCountry = stateToCountryMap[state];
+      if (stateCountryCode) {
+        return !allowedCountryCodes.has(stateCountryCode);
+      }
+      if (mappedCountry) {
+        return !selectedCountries.includes(mappedCountry);
+      }
+      return false;
+    });
+    if (invalidStates.length > 0) {
+      return `Selected state(s) do not belong to chosen country: ${invalidStates.join(', ')}`;
+    }
+
+    const stateKeyMap = new Map(
+      stateRecords.map((state) => [state.name, { countryCode: state.countryCode, isoCode: state.isoCode }])
+    );
+    const cityToCountryCode = new Map<string, string>();
+    selectedStates.forEach((stateName) => {
+      const match = stateKeyMap.get(stateName);
+      if (!match) return;
+      City.getCitiesOfState(match.countryCode, match.isoCode).forEach((city) => {
+        if (city?.name) {
+          cityToCountryCode.set(city.name, match.countryCode);
+        }
+      });
+    });
+
+    const invalidCities = selectedCities.filter((city) => {
+      const mappedState = cityToStateMap[city];
+      if (mappedState) {
+        const mappedCountry = stateToCountryMap[mappedState] || 'India';
+        return !selectedCountries.includes(mappedCountry);
+      }
+      const cityCountryCode = cityToCountryCode.get(city);
+      if (cityCountryCode) {
+        return !allowedCountryCodes.has(cityCountryCode);
+      }
+      return false;
+    });
+    if (invalidCities.length > 0) {
+      return `Selected city(s) do not belong to chosen country: ${invalidCities.join(', ')}`;
+    }
+
+    return null;
   };
 
   // Custom MultiSelect Component with Dropdown
@@ -1133,14 +1218,14 @@ const UserPreferencesPage: React.FC = () => {
                     )}
                   </label>
                   <MultiSelect
-                    options={availableOptions?.countries || []}
+                    options={countryOptions}
                     selected={prefs.geographic?.countries || []}
-                    onChange={(selected) => updatePreference('geographic.countries', selected)}
+                    onChange={(selected) => updatePreference('geographic.countries', selected.map(normalizeOption))}
                     searchValue={searchFilters.country}
                     onSearchChange={(value) => setSearchFilters({...searchFilters, country: value})}
                     placeholder="Search countries..."
                   />
-                  <p className="text-xs text-gray-500 mt-2">{availableOptions?.countries?.length || 0} countries available</p>
+                  <p className="text-xs text-gray-500 mt-2">{countryOptions.length} countries available</p>
                 </div>
                 
                 <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
@@ -1164,12 +1249,15 @@ const UserPreferencesPage: React.FC = () => {
                     options={getFilteredStates()}
                     selected={prefs.geographic?.states || []}
                     onChange={(selected) => {
-                      updatePreference('geographic.states', selected);
+                      const cleanedStates = selected.map(normalizeOption);
+                      updatePreference('geographic.states', cleanedStates);
                       // Clear cities that don't belong to selected states
                       if (prefs.geographic?.cities) {
-                        const validCities = prefs.geographic.cities.filter(city => {
+                        const validCities = prefs.geographic.cities
+                          .map(normalizeOption)
+                          .filter(city => {
                           const cityState = cityToStateMap[city];
-                          return !cityState || selected.includes(cityState);
+                          return !cityState || cleanedStates.includes(cityState);
                         });
                         if (validCities.length !== prefs.geographic.cities.length) {
                           updatePreference('geographic.cities', validCities);
@@ -1206,7 +1294,7 @@ const UserPreferencesPage: React.FC = () => {
                   <MultiSelect
                     options={getFilteredCities()}
                     selected={prefs.geographic?.cities || []}
-                    onChange={(selected) => updatePreference('geographic.cities', selected)}
+                    onChange={(selected) => updatePreference('geographic.cities', selected.map(normalizeOption))}
                     searchValue={searchFilters.city}
                     onSearchChange={(value) => setSearchFilters({...searchFilters, city: value})}
                     placeholder="Search cities..."
