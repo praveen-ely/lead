@@ -20,18 +20,18 @@ router.post('/:userId/sync', userPreferenceController.triggerManualSync);
 // router.post('/:userId/manual-send', protect, authorize('admin'), userPreferenceController.manualSendDummyLeads);
 
 // User preference routes
-router.get('/:userId', protect, userPreferenceController.getUserPreferences);
-router.post('/:userId', protect, userPreferenceController.createOrUpdateUserPreferences);
-router.put('/:userId', protect, userPreferenceController.createOrUpdateUserPreferences);
+router.get('/:userId', userPreferenceController.getUserPreferences);
+router.post('/:userId', userPreferenceController.createOrUpdateUserPreferences);
+router.put('/:userId', userPreferenceController.createOrUpdateUserPreferences);
 router.delete('/:userId', protect, authorize('admin'), userPreferenceController.deleteUserPreferences);
 
 // User leads routes
-router.get('/:userId/leads', protect, userPreferenceController.getUserLeads);
+router.get('/:userId/leads', userPreferenceController.getUserLeads);
 
 // User statistics
-router.get('/:userId/stats', protect, userPreferenceController.getUserStatistics);
+router.get('/:userId/stats', userPreferenceController.getUserStatistics);
 
 // Test lead matching
-router.post('/:userId/test-matching', protect, userPreferenceController.testLeadMatching);
+router.post('/:userId/test-matching', userPreferenceController.testLeadMatching);
 
 module.exports = router;

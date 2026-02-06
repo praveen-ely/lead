@@ -159,7 +159,7 @@ const AdminLogin: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-3 py-3 bg-gray-800/50 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400 transition-all"
-                  placeholder="pn2@gmail.com"
+                  placeholder="admin@elymento.ai"
                   required
                 />
               </div>
@@ -179,7 +179,7 @@ const AdminLogin: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-10 pr-10 py-3 bg-gray-800/50 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400 transition-all"
-                  placeholder="pn2@gmail.com"
+                  placeholder="admin@elymento.ai"
                   required
                 />
                 <button
@@ -214,8 +214,8 @@ const AdminLogin: React.FC = () => {
           <div className="mt-6 p-4 bg-purple-900/30 rounded-lg border border-purple-500/30">
             <p className="text-xs text-gray-300 font-medium mb-2">Admin Test Credentials:</p>
             <div className="text-xs text-gray-400 space-y-1">
-              <p><strong>Email:</strong> pn2@gmail.com</p>
-              <p><strong>Password:</strong> pn2@gmail.com</p>
+              <p><strong>Email:</strong> admin@elymento.ai</p>
+              <p><strong>Password:</strong> admin@elymento.ai</p>
             </div>
           </div>
 

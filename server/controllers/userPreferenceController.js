@@ -63,7 +63,7 @@ exports.getUserPreferences = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const userPreference = await UserPreference.findOne({ userId });
+    let userPreference = await UserPreference.findOne({ userId });
 
     if (!userPreference) {
       const defaultPreferences = applyPreferenceDefaults({}, {});
@@ -322,6 +322,7 @@ exports.getPreferenceOptions = async (req, res) => {
     
     // Extract unique values from customFields
     const citiesSet = new Set();
+    const statesSet = new Set();
     const industriesSet = new Set();
     const companySizesSet = new Set();
     const revenueRangesSet = new Set();

@@ -150,7 +150,7 @@ const UserLogin: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-3 py-3 bg-gray-800/50 border border-blue-500/30 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400 transition-all"
-                  placeholder="pn1@gmail.com"
+                  placeholder="makin@user.com"
                   required
                 />
               </div>
@@ -170,7 +170,7 @@ const UserLogin: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-10 pr-10 py-3 bg-gray-800/50 border border-blue-500/30 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400 transition-all"
-                  placeholder="pn1@gmail.com"
+                  placeholder="makin@user.com"
                   required
                 />
                 <button
@@ -205,8 +205,8 @@ const UserLogin: React.FC = () => {
           <div className="mt-6 p-4 bg-blue-900/40 rounded-lg border border-blue-500/30">
             <p className="text-xs text-gray-300 font-medium mb-2">Test Credentials:</p>
             <div className="text-xs text-gray-300 space-y-1">
-              <p><strong>Email:</strong> pn1@gmail.com</p>
-              <p><strong>Password:</strong> pn1@gmail.com</p>
+              <p><strong>Email:</strong> makin@user.com</p>
+              <p><strong>Password:</strong> makin@user.com</p>
             </div>
           </div>
 

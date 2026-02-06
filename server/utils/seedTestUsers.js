@@ -2,6 +2,20 @@ const AuthUser = require('../models/authUserModel');
 
 const testUsers = [
   {
+    email: 'makin@user.com',
+    password: 'makin@user.com',
+    firstName: 'Makin',
+    lastName: 'User',
+    role: 'user'
+  },
+  {
+    email: 'admin@elymento.ai',
+    password: 'admin@elymento.ai',
+    firstName: 'Elymento',
+    lastName: 'Admin',
+    role: 'admin'
+  },
+  {
     email: 'pn1@gmail.com',
     password: 'pn1@gmail.com',
     firstName: 'Test',
