@@ -46,7 +46,6 @@ const UserDashboard: React.FC = () => {
   const [recentSortBy, setRecentSortBy] = useState('leadId');
   const [recentSortOrder, setRecentSortOrder] = useState<'asc' | 'desc'>('asc');
   const [recentPage, setRecentPage] = useState(1);
-  const [showAllRecent, setShowAllRecent] = useState(false);
   const [showRecentFieldSelector, setShowRecentFieldSelector] = useState(false);
   const [availableRecentFields, setAvailableRecentFields] = useState<string[]>([]);
   const allowedRecentFields = [
@@ -79,7 +78,6 @@ const UserDashboard: React.FC = () => {
     'companyNotes'
   ];
   const hiddenRecentFields = new Set(['id']);
-  const [expandedBatchDate, setExpandedBatchDate] = useState<string | null>(null);
   const fixedRecentFields = [
     'leadId',
     'companyName',
@@ -546,7 +544,7 @@ const UserDashboard: React.FC = () => {
 
   useEffect(() => {
     setRecentPage(1);
-  }, [recentSearch, recentStatus, recentPriority, recentSortBy, recentSortOrder, showAllRecent]);
+  }, [recentSearch, recentStatus, recentPriority, recentSortBy, recentSortOrder]);
 
   const statusOptions = Array.from(
     new Set(
@@ -833,17 +831,13 @@ const UserDashboard: React.FC = () => {
     selectedBatchKey, 
     onBatchSelect, 
     onNewClick, 
-    onUpdatedClick,
-    expandedDate,
-    onToggleDate
+    onUpdatedClick
   }: { 
     leadBatches: Array<{ key: string; label: string; count: number; newCount: number; updatedCount: number }>; 
     selectedBatchKey: string | null; 
     onBatchSelect: (key: string) => void;
     onNewClick: () => void;
     onUpdatedClick: () => void;
-    expandedDate: string | null;
-    onToggleDate: (dateKey: string) => void;
   }) => {
     const getDateKey = (batchKey: string) => {
       if (!batchKey || batchKey === 'unknown') return 'unknown';
@@ -903,60 +897,23 @@ const UserDashboard: React.FC = () => {
               {groupedList.length > 0 ? (
                 groupedList.map((group) => (
                   <React.Fragment key={group.dateKey}>
-                    <tr
-                      className="bg-gray-50 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => onToggleDate(group.dateKey)}
-                    >
+                    <tr className="bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {group.label}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{group.count}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-emerald-700">{group.newCount}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-amber-700">{group.updatedCount}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600">
-                        {expandedDate === group.dateKey ? 'Hide' : 'View'}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <button
+                          onClick={() => navigate('/leads')}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          View More
+                        </button>
                       </td>
                     </tr>
-                    {expandedDate === group.dateKey &&
-                      group.items.map((batch: { key: string; label: string; count: number; newCount: number; updatedCount: number }) => (
-                        <tr key={batch.key} className={`expand-row hover:bg-gray-50 ${selectedBatchKey === batch.key ? 'bg-blue-50' : ''}`}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{batch.label}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{batch.count}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-emerald-700">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onNewClick();
-                              }}
-                              className="hover:underline"
-                            >
-                              {batch.newCount}
-                            </button>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-amber-700">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onUpdatedClick();
-                              }}
-                              className="hover:underline"
-                            >
-                              {batch.updatedCount}
-                            </button>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onBatchSelect(batch.key);
-                              }}
-                              className="text-blue-600 hover:text-blue-700"
-                            >
-                              View Leads
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                    {/* Time-wise rows hidden */}
                   </React.Fragment>
                 ))
               ) : (
@@ -994,9 +951,6 @@ const UserDashboard: React.FC = () => {
     setSelectedLeadType((prev) => (prev === 'updated' ? null : 'updated'));
   }, []);
 
-  const handleToggleBatchDate = useCallback((dateKey: string) => {
-    setExpandedBatchDate((prev) => (prev === dateKey ? null : dateKey));
-  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1025,8 +979,6 @@ const UserDashboard: React.FC = () => {
               onBatchSelect={handleBatchSelect}
               onNewClick={handleNewClick}
               onUpdatedClick={handleUpdatedClick}
-              expandedDate={expandedBatchDate}
-              onToggleDate={handleToggleBatchDate}
             />
 
             <div className="bg-white rounded-lg shadow">
@@ -1118,7 +1070,7 @@ const UserDashboard: React.FC = () => {
             </div>
           ) : (
             <>
-              <div className={`overflow-x-auto bg-red-50 ${showAllRecent && !selectedBatchKey ? 'max-h-[520px] overflow-y-auto' : ''}`}>
+                  <div className="overflow-x-auto bg-red-50">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
@@ -1202,33 +1154,13 @@ const UserDashboard: React.FC = () => {
                 </table>
               </div>
               {!selectedBatchKey && (
-                <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between text-sm text-gray-600">
-                  <span>
-                    Showing {(recentPage - 1) * recentPageSize + 1}-{Math.min(recentPage * recentPageSize, sortedRecent.length)} of {sortedRecent.length}
-                  </span>
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => setRecentPage((prev) => Math.max(1, prev - 1))}
-                      disabled={recentPage === 1}
-                      className="px-3 py-1 rounded border border-gray-200 bg-white text-gray-700 disabled:opacity-50"
-                    >
-                      Prev
-                    </button>
-                    <span>Page {recentPage} of {recentTotalPages}</span>
-                    <button
-                      onClick={() => setRecentPage((prev) => Math.min(recentTotalPages, prev + 1))}
-                      disabled={recentPage === recentTotalPages}
-                      className="px-3 py-1 rounded border border-gray-200 bg-white text-gray-700 disabled:opacity-50"
-                    >
-                      Next
-                    </button>
-                    <button
-                      onClick={() => setShowAllRecent((prev) => !prev)}
-                      className="px-3 py-1 rounded border border-gray-200 bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    >
-                      {showAllRecent ? 'Show Less' : 'Show More'}
-                    </button>
-                  </div>
+                <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-end text-sm text-gray-600">
+                  <button
+                    onClick={() => navigate('/leads')}
+                    className="px-3 py-1 rounded border border-gray-200 bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  >
+                    Show More
+                  </button>
                 </div>
               )}
             </>
