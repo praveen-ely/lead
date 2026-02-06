@@ -283,7 +283,7 @@ const LeadList: React.FC = () => {
   } | null>(null);
   const [availableFields, setAvailableFields] = useState<string[]>([]);
   const [showFieldSelector, setShowFieldSelector] = useState(false);
-  const allowedFields = [
+  const modalFields = [
     'leadId',
     'companyName',
     'website',
@@ -313,13 +313,14 @@ const LeadList: React.FC = () => {
     'companyNotes',
     'attachments'
   ];
+  const tableFields = modalFields.filter((field) => field !== 'attachments');
   const baseFields = [
     'leadId',
     'companyName',
     'website',
     'companyType',
     'foundedYear'
-  ];
+  ].filter((field) => tableFields.includes(field));
   const hiddenFields = new Set(['id']);
   const [selectedFields, setSelectedFields] = useState<string[]>(baseFields);
   const [batchLeads, setBatchLeads] = useState<Lead[]>([]);
@@ -492,14 +493,14 @@ const LeadList: React.FC = () => {
               typeof key === 'string' &&
               key.trim() !== '' &&
               !hiddenFields.has(key) &&
-              allowedFields.includes(key)
+              tableFields.includes(key)
             ) {
               extraFields.add(key);
             }
           });
         });
         const allFields = Array.from(new Set([...baseFields, ...Array.from(extraFields)]))
-          .filter((field) => !hiddenFields.has(field) && allowedFields.includes(field));
+          .filter((field) => !hiddenFields.has(field) && tableFields.includes(field));
         setAvailableFields(allFields);
         setSelectedFields((prev) => {
           const next = prev.filter((field) => allFields.includes(field));
@@ -1395,6 +1396,7 @@ const LeadList: React.FC = () => {
                       const isLatestBatch = latestBatchKey && leadBatchKey === latestBatchKey;
                       const highlightNew = isLatestBatch && lead.isNewLead;
                       const highlightUpdated = isLatestBatch && lead.isUpdatedLead;
+                      const displayId = (pagination.page - 1) * pagination.limit + index + 1;
                       return (
                       <tr
                         key={lead._id}
@@ -1410,7 +1412,9 @@ const LeadList: React.FC = () => {
                       >
                         {selectedFields.map(field => {
                           const latestCustomFields = lead.latestCustomFields || getLatestCustomFields(lead);
-                          const value = latestCustomFields?.[field] ?? lead?.[field] ?? '';
+                          const value = field === 'leadId'
+                            ? displayId
+                            : (latestCustomFields?.[field] ?? lead?.[field] ?? '');
                           const isFieldUpdated = highlightUpdated && Array.isArray(lead.updatedFields) && lead.updatedFields.includes(field);
                           const isUnseen = !viewedRowIds.has(lead._id);
                           return (
@@ -1622,7 +1626,7 @@ const LeadList: React.FC = () => {
               </div>
               <div className="px-6 py-6 overflow-y-auto flex-1 bg-gradient-to-br from-gray-50 to-white">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {allowedFields.map((key, index) => {
+                  {modalFields.map((key, index) => {
                     const latest = selectedLead.latestCustomFields || getLatestCustomFields(selectedLead);
                     const value = key === 'leadId'
                       ? (selectedLead.leadId || latest?.leadId || selectedLead.id || '-')
@@ -1731,7 +1735,7 @@ const LeadList: React.FC = () => {
                     setSelectedLead(null);
                   }}
                   getFieldLabel={getFieldLabel}
-                  allowedFields={allowedFields}
+                  modalFields={modalFields}
                 />
               </div>
             </div>
@@ -1819,8 +1823,8 @@ const EditLeadForm: React.FC<{
   onSave: (data: any) => void;
   onCancel: () => void;
   getFieldLabel: (field: string) => string;
-  allowedFields: string[];
-}> = ({ lead, onSave, onCancel, getFieldLabel, allowedFields }) => {
+  modalFields: string[];
+}> = ({ lead, onSave, onCancel, getFieldLabel, modalFields }) => {
   const getLatestCustomFields = (lead: any) => {
     if (Array.isArray(lead?.customFields)) {
       return lead.customFields[lead.customFields.length - 1] || {};
@@ -1891,7 +1895,7 @@ const EditLeadForm: React.FC<{
   };
 
   // Separate CompanyNotes and Attachments from other fields
-  const regularFields = allowedFields.filter((key) => key !== 'companyNotes' && key !== 'attachments');
+  const regularFields = modalFields.filter((key: string) => key !== 'companyNotes' && key !== 'attachments');
   const companyNotes = formData.companyNotes || formData.CompanyNotes || '';
   const attachments = formData.attachments || formData.Attachments || '';
 
@@ -1899,7 +1903,7 @@ const EditLeadForm: React.FC<{
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {regularFields.length > 0 ? (
-          regularFields.map((key, index) => (
+          regularFields.map((key: string, index: number) => (
             <div 
               key={key}
               className="bg-white rounded-lg p-3 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 hover:border-emerald-300"

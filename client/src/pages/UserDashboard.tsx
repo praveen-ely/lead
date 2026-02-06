@@ -76,8 +76,7 @@ const UserDashboard: React.FC = () => {
     'contactRole',
     'email',
     'leadScore',
-    'companyNotes',
-    'attachments'
+    'companyNotes'
   ];
   const hiddenRecentFields = new Set(['id']);
   const [expandedBatchDate, setExpandedBatchDate] = useState<string | null>(null);
@@ -625,8 +624,7 @@ const UserDashboard: React.FC = () => {
       contactRole: 'Contact Role',
       email: 'Email',
       leadScore: 'Lead Score',
-      companyNotes: 'Company Notes',
-      attachments: 'Attachments'
+      companyNotes: 'Company Notes'
     };
     const pretty = field
       .replace(/([a-z])([A-Z])/g, '$1 $2')
@@ -1196,11 +1194,12 @@ const UserDashboard: React.FC = () => {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {(selectedBatchKey ? filteredRecent : pagedRecent).length > 0 ? (
-                      (selectedBatchKey ? filteredRecent : pagedRecent).map((lead) => {
+                  (selectedBatchKey ? filteredRecent : pagedRecent).map((lead, index) => {
                         const leadBatchKey = getLeadBatchKey(lead);
                         const isLatestBatch = latestBatchKey && leadBatchKey === latestBatchKey;
                         const highlightNew = isLatestBatch && lead.isNewLead;
                         const highlightUpdated = isLatestBatch && lead.isUpdatedLead;
+                    const displayId = selectedBatchKey ? index + 1 : (recentPage - 1) * recentPageSize + index + 1;
                         return (
                       <tr
                         key={lead._id}
@@ -1208,7 +1207,9 @@ const UserDashboard: React.FC = () => {
                       >
                             {selectedRecentFields.map((field) => {
                               const latestCustomFields = lead.latestCustomFields || getLatestCustomFields(lead);
-                              const value = latestCustomFields?.[field] ?? lead?.[field] ?? '';
+                          const value = field === 'leadId'
+                            ? displayId
+                            : (latestCustomFields?.[field] ?? lead?.[field] ?? '');
                           const isFieldUpdated = highlightUpdated;
                               return (
                             <td
