@@ -1193,96 +1193,7 @@ const LeadList: React.FC = () => {
         </div>
         )}
 
-        {/* Filters */}
-        {!selectedBatchKey && (
-          <div className="bg-white border-b border-gray-200 px-6 py-4 mb-6 rounded-lg shadow-sm">
-            <div className="grid gap-3 md:grid-cols-5">
-              <div className="relative md:col-span-2">
-                <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
-                <input
-                  value={filters.search}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    preserveScroll(() => {
-                      setFilters(prev => ({ ...prev, search: value }));
-                      setPagination(prev => ({ ...prev, page: 1 }));
-                    });
-                  }}
-                  placeholder="Search in all fields"
-                  className="w-full rounded-lg border border-gray-200 pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="relative">
-                <select
-                  value={filters.status}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    preserveScroll(() => {
-                      setFilters(prev => ({ ...prev, status: value }));
-                      setPagination(prev => ({ ...prev, page: 1 }));
-                    });
-                  }}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer"
-                  style={{
-                    appearance: 'none',
-                    WebkitAppearance: 'none',
-                    MozAppearance: 'none',
-                    backgroundImage: 'none'
-                  }}
-                >
-                  <option value="">All Statuses</option>
-                  {statusOptions.map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center justify-center pr-3 pointer-events-none">
-                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                  </svg>
-                </div>
-              </div>
-              <div className="relative">
-                <select
-                  value={filters.priority}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    preserveScroll(() => {
-                      setFilters(prev => ({ ...prev, priority: value }));
-                      setPagination(prev => ({ ...prev, page: 1 }));
-                    });
-                  }}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer"
-                  style={{
-                    appearance: 'none',
-                    WebkitAppearance: 'none',
-                    MozAppearance: 'none',
-                    backgroundImage: 'none'
-                  }}
-                >
-                  <option value="">All Priorities</option>
-                  {priorityOptions.map((priority) => (
-                    <option key={priority} value={priority}>
-                      {priority}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center justify-center pr-3 pointer-events-none">
-                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                  </svg>
-                </div>
-              </div>
-              <button
-                onClick={clearLeadFilters}
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200"
-              >
-                Reset Filters
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Filters moved into action bar */}
 
       {/* Main Content */}
         {loading ? (
@@ -1299,31 +1210,49 @@ const LeadList: React.FC = () => {
           </div>
         ) : (
           <>
-            {/* Action Buttons */}
-            <div className="mb-6 flex items-center justify-end space-x-3">
-              
-              <button
-                onClick={() => setShowFieldSelector(!showFieldSelector)}
-                className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium flex items-center gap-2"
-              >
-                <Settings size={16} />
-                Customize Fields
-              </button>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  fetchLeads();
-                }}
-                className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 font-medium flex items-center gap-2"
-              >
-                <RefreshCw size={16} />
-                Refresh
-              </button>
+            {/* Action Bar */}
+            <div className="mb-6 flex flex-wrap items-center gap-3">
+              {!selectedBatchKey && (
+                <div className="relative flex-1 min-w-[220px] max-w-md">
+                  <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
+                  <input
+                    value={filters.search}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      preserveScroll(() => {
+                        setFilters(prev => ({ ...prev, search: value }));
+                        setPagination(prev => ({ ...prev, page: 1 }));
+                      });
+                    }}
+                    placeholder="Search in all fields"
+                    className="w-full rounded-lg border border-gray-200 pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              )}
+              <div className="flex items-center gap-3 ml-auto">
+                <button
+                  onClick={() => setShowFieldSelector(!showFieldSelector)}
+                  className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                >
+                  <Settings size={16} />
+                  Customize Fields
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    fetchLeads();
+                  }}
+                  className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 font-medium flex items-center gap-2"
+                >
+                  <RefreshCw size={16} />
+                  Refresh
+                </button>
+              </div>
             </div>
 
             {/* Field Selector - Opens below Customize Fields button */}
             {showFieldSelector && (
-              <div className="mb-6 p-6 bg-gradient-to-br from-white to-gray-50 rounded-xl border-2 border-gray-200 shadow-lg animate-slideUp">
+              <div className="mt-4 mb-6 p-6 bg-gradient-to-br from-white to-gray-50 rounded-xl border-2 border-gray-200 shadow-lg animate-slideUp">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                     <Settings size={20} className="text-blue-600" />
