@@ -70,6 +70,19 @@ const mergeCustomFields = (existingFields, newData) => {
   return newData || {};
 };
 
+const appendCustomFields = (existingFields, newData) => {
+  if (!newData || typeof newData !== 'object') {
+    return Array.isArray(existingFields) ? existingFields : existingFields ? [existingFields] : [];
+  }
+  if (Array.isArray(existingFields)) {
+    return [...existingFields, newData];
+  }
+  if (existingFields && typeof existingFields === 'object') {
+    return [existingFields, newData];
+  }
+  return [newData];
+};
+
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const buildAssignedToConditions = (user) => {
@@ -1125,12 +1138,12 @@ exports.updateLeadByLeadId = async (req, res) => {
       });
     }
 
-    // Merge customFields (accept object or single-item array)
+    // Append customFields history (accept object or single-item array)
     if (Array.isArray(data)) {
       data = data[0] || {};
     }
     if (data && typeof data === 'object') {
-      lead.customFields = mergeCustomFields(lead.customFields, data);
+      lead.customFields = appendCustomFields(lead.customFields, data);
     }
     if (assignedTo) {
       lead.assignedTo = assignedTo;
@@ -1208,7 +1221,7 @@ exports.updateLeadByLeadIdFromBody = async (req, res) => {
         data = data[0] || {};
       }
       if (data && typeof data === 'object') {
-        lead.customFields = mergeCustomFields(lead.customFields, data);
+        lead.customFields = appendCustomFields(lead.customFields, data);
       }
       if (assignedTo) {
         lead.assignedTo = assignedTo;
