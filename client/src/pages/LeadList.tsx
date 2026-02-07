@@ -266,6 +266,10 @@ const LeadList: React.FC = () => {
     sortBy: 'leadId',
     sortOrder: 'asc'
   });
+  const [dateRange, setDateRange] = useState<{ from: string; to: string }>({
+    from: '',
+    to: ''
+  });
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -365,6 +369,7 @@ const LeadList: React.FC = () => {
       sortBy: 'leadId',
       sortOrder: 'asc'
     });
+      setDateRange({ from: '', to: '' });
       setPagination(prev => ({ ...prev, page: 1 }));
       setSelectedLeadType(null);
     });
@@ -672,6 +677,10 @@ const LeadList: React.FC = () => {
     return dateObj.getMonth() === now.getMonth() && dateObj.getFullYear() === now.getFullYear();
   };
 
+  const getLeadCreatedDate = (lead: Lead) => {
+    return lead.createdAt || lead.dateAdded || lead.updatedAt || lead.dateUpdated || '';
+  };
+
   const filterByLeadType = (list: Lead[]) => {
     if (selectedLeadType === 'new') return list.filter((lead) => lead.isNewLead);
     if (selectedLeadType === 'updated') return list.filter((lead) => lead.isUpdatedLead);
@@ -720,6 +729,22 @@ const LeadList: React.FC = () => {
       };
       const matches = Object.values(flatFields).some((value) => String(value || '').toLowerCase().includes(searchValue));
       if (!matches) return false;
+    }
+    // Date filter (database created date)
+    if (dateRange.from || dateRange.to) {
+      const leadDateValue = getLeadCreatedDate(lead);
+      const leadDate = leadDateValue ? new Date(leadDateValue) : null;
+      if (!leadDate || Number.isNaN(leadDate.getTime())) return false;
+      if (dateRange.from) {
+        const start = new Date(dateRange.from);
+        start.setHours(0, 0, 0, 0);
+        if (leadDate < start) return false;
+      }
+      if (dateRange.to) {
+        const end = new Date(dateRange.to);
+        end.setHours(23, 59, 59, 999);
+        if (leadDate > end) return false;
+      }
     }
     return true;
   });
@@ -816,6 +841,53 @@ const LeadList: React.FC = () => {
   const showToast = (type: 'success' | 'error' | 'warning' | 'info', message: string) => {
     setToast({ type, message });
     setTimeout(() => setToast(null), 3000);
+  };
+
+  const getExportValue = (lead: Lead, field: string) => {
+    const latestCustomFields = lead.latestCustomFields || getLatestCustomFields(lead);
+    if (field === 'leadId') {
+      return lead.leadId || lead.id || lead._id || '';
+    }
+    const value = latestCustomFields?.[field] ?? (lead as any)?.[field];
+    if (value === null || value === undefined) return '';
+    if (typeof value === 'object') return JSON.stringify(value);
+    if (field.toLowerCase().includes('date') || field.toLowerCase().includes('at')) {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
+    }
+    return String(value);
+  };
+
+  const exportLeadsToCsv = () => {
+    if (!selectedFields.length) {
+      showToast('warning', 'Please select fields to export');
+      return;
+    }
+    const rows = sortedDisplayLeads;
+    if (!rows.length) {
+      showToast('warning', 'No leads available to export');
+      return;
+    }
+    const headers = selectedFields.map((field) => getFieldLabel(field));
+    const csvRows = [
+      headers,
+      ...rows.map((lead) => selectedFields.map((field) => getExportValue(lead, field)))
+    ];
+    const escapeCsv = (value: string) => {
+      const needsQuotes = /[",\n]/.test(value);
+      const escaped = value.replace(/"/g, '""');
+      return needsQuotes ? `"${escaped}"` : escaped;
+    };
+    const csvContent = '\uFEFF' + csvRows.map((row) => row.map((cell) => escapeCsv(String(cell ?? ''))).join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `leads_export_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   // Handle delete confirmation
@@ -1211,42 +1283,89 @@ const LeadList: React.FC = () => {
         ) : (
           <>
             {/* Action Bar */}
-            <div className="mb-6 flex flex-wrap items-center gap-3">
-              {!selectedBatchKey && (
-                <div className="relative flex-1 min-w-[220px] max-w-md">
-                  <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
-                  <input
-                    value={filters.search}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      preserveScroll(() => {
-                        setFilters(prev => ({ ...prev, search: value }));
-                        setPagination(prev => ({ ...prev, page: 1 }));
-                      });
-                    }}
-                    placeholder="Search in all fields"
-                    className="w-full rounded-lg border border-gray-200 pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+            <div className="mb-6">
+              <div className="rounded-2xl border border-gray-200 bg-white/90 shadow-sm px-4 py-4">
+                <div className="flex flex-col gap-3">
+                  {!selectedBatchKey && (
+                    <div className="w-full">
+                      <div className="flex flex-nowrap items-center gap-3 w-full">
+                        <div className="relative flex-1 min-w-[240px]">
+                          <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
+                          <input
+                            value={filters.search}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              preserveScroll(() => {
+                                setFilters(prev => ({ ...prev, search: value }));
+                                setPagination(prev => ({ ...prev, page: 1 }));
+                              });
+                            }}
+                            placeholder="Search in all fields"
+                            className="w-full h-10 rounded-xl border border-gray-200 bg-white/80 pl-9 pr-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2 bg-white/80 px-3 h-10 min-w-[320px]">
+                          <Calendar size={16} className="text-gray-400" />
+                          <input
+                            type="date"
+                            value={dateRange.from}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              preserveScroll(() => {
+                                setDateRange((prev) => ({ ...prev, from: value }));
+                                setPagination(prev => ({ ...prev, page: 1 }));
+                              });
+                            }}
+                            className="text-sm text-gray-700 focus:outline-none bg-transparent"
+                          />
+                          <span className="text-sm text-gray-500">to</span>
+                          <input
+                            type="date"
+                            value={dateRange.to}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              preserveScroll(() => {
+                                setDateRange((prev) => ({ ...prev, to: value }));
+                                setPagination(prev => ({ ...prev, page: 1 }));
+                              });
+                            }}
+                            className="text-sm text-gray-700 focus:outline-none bg-transparent"
+                          />
+                        </div>
+                        <div className="flex items-center h-10 px-3 rounded-xl bg-gradient-to-r from-slate-50 to-blue-50 border border-blue-100 text-sm text-gray-700 shadow-sm whitespace-nowrap">
+                          <span className="font-semibold text-blue-700">{sortedDisplayLeads.length}</span>
+                          <span className="ml-2">record found</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3 ml-auto">
+                    <button
+                      onClick={exportLeadsToCsv}
+                      className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                    >
+                      <Download size={16} />
+                      Export CSV
+                    </button>
+                    <button
+                      onClick={() => setShowFieldSelector(!showFieldSelector)}
+                      className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                    >
+                      <Settings size={16} />
+                      Customize Fields
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        fetchLeads();
+                      }}
+                      className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 font-medium flex items-center gap-2"
+                    >
+                      <RefreshCw size={16} />
+                      Refresh
+                    </button>
+                  </div>
                 </div>
-              )}
-              <div className="flex items-center gap-3 ml-auto">
-                <button
-                  onClick={() => setShowFieldSelector(!showFieldSelector)}
-                  className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium flex items-center gap-2"
-                >
-                  <Settings size={16} />
-                  Customize Fields
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    fetchLeads();
-                  }}
-                  className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 font-medium flex items-center gap-2"
-                >
-                  <RefreshCw size={16} />
-                  Refresh
-                </button>
               </div>
             </div>
 
